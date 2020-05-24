@@ -18,6 +18,7 @@ RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
   p7zip-full \
   exiftool \
   clamav-daemon \
+  libclamunrar9 \
   tor \
   libdpkg-perl \
   bsdmainutils \
@@ -27,11 +28,18 @@ RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
   make \
   libjansson-dev \
   libmagic-dev \
-  libusb-1.0-0-dev
+  libusb-1.0-0-dev && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
 
-RUN freshclam && \
-  service clamav-daemon start
+# ClamAV daemon post-configuration
+RUN mkdir /var/run/clamav && \
+  chown clamav:clamav /var/run/clamav && \
+  chmod 777 /var/run/clamav && \
+  sed -i 's/^DetectPUA .*$/DetectPUA true/' /etc/clamav/clamd.conf && \
+  freshclam
 
+# nonroot user
 RUN groupadd -r nonroot && \
   useradd -r -g nonroot -d /home/nonroot -s /sbin/nologin -c "Nonroot User" nonroot && \
   mkdir /home/nonroot && \
@@ -41,20 +49,23 @@ RUN groupadd -r nonroot && \
 USER nonroot
 WORKDIR /home/nonroot
 
+# viper / viper-web installation
 RUN pip3 install --user --upgrade pip && \
-  pip3 install python-idb --user
-
-RUN git clone https://github.com/viper-framework/viper && \
+  pip3 install python-idb --user && \
+  git clone https://github.com/viper-framework/viper && \
   cd viper && pip3 install . --user && \
   echo "update-modules" | /home/nonroot/.local/bin/viper && \
   cd && \
   git clone https://github.com/jdsnape/viper-web && \
-  cd viper-web && pip3 install . --user
-
-RUN sed -i 's/host = .*$/host = 0.0.0.0/' /home/nonroot/.viper/viper.conf && \
+  cd viper-web && pip3 install . --user && \
+  sed -i 's/host = .*$/host = 0.0.0.0/' /home/nonroot/.viper/viper.conf && \
   sed -i 's/#admin_username.*$/admin_username = admin/' /home/nonroot/.viper/viper.conf && \
   sed -i 's/#admin_password.*$/admin_password = admin/' /home/nonroot/.viper/viper.conf
 
+# port
 EXPOSE 8080
-WORKDIR /home/nonroot/viper-web
-CMD /home/nonroot/viper-web/viper-web
+
+# av daemon bootstrapping
+USER root
+COPY bootstrap.sh /
+CMD ["/bootstrap.sh"]
