@@ -65,7 +65,11 @@ RUN pip3 install --user --upgrade pip && \
 # port
 EXPOSE 8080
 
-# av daemon bootstrapping
+# av daemon / viper-web bootstrapping
 USER root
+
 COPY bootstrap.sh /
+RUN chown root:root /bootstrap.sh && \
+  chmod +x /bootstrap.sh
+
 CMD ["/bootstrap.sh"]
