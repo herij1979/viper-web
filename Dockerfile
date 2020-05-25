@@ -49,18 +49,21 @@ RUN groupadd -r nonroot && \
 USER nonroot
 WORKDIR /home/nonroot
 
-# viper / viper-web installation
 RUN pip3 install --user --upgrade pip && \
   pip3 install python-idb --user && \
+  # viper installation
   git clone https://github.com/viper-framework/viper && \
   cd viper && pip3 install . --user && \
   echo "update-modules" | /home/nonroot/.local/bin/viper && \
-  cd && \
-  git clone https://github.com/jdsnape/viper-web && \
-  cd viper-web && pip3 install . --user && \
+  mkdir /home/nonroot/workdir && \
+  sed -i 's/storage_path.*$/storage_path=\/home\/nonroot\/workdir/' /home/nonroot/.viper/viper.conf && \
   sed -i 's/host = .*$/host = 0.0.0.0/' /home/nonroot/.viper/viper.conf && \
   sed -i 's/#admin_username.*$/admin_username = admin/' /home/nonroot/.viper/viper.conf && \
-  sed -i 's/#admin_password.*$/admin_password = admin/' /home/nonroot/.viper/viper.conf
+  sed -i 's/#admin_password.*$/admin_password = admin/' /home/nonroot/.viper/viper.conf && \
+  # viper-web installation
+  cd && \
+  git clone https://github.com/jdsnape/viper-web && \
+  cd viper-web && pip3 install . --user
 
 # port
 EXPOSE 8080
