@@ -1,8 +1,6 @@
 FROM ubuntu:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV DEBIAN_PRIORITY critical
-ENV LC_ALL C.UTF-8
 
 USER root
 
