@@ -1,34 +1,37 @@
 FROM ubuntu:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_PRIORITY=critical
+ENV LC_ALL=C.UTF-8
 
 USER root
 
 RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
-  git \
-  gcc \
-  python3-dev \
-  python3-pip \
-  libssl-dev \
-  swig \
-  libffi-dev \
-  ssdeep \
-  libfuzzy-dev \
-  unrar \
-  p7zip-full \
-  exiftool \
-  clamav-daemon \
-  libclamunrar9 \
-  tor \
-  libdpkg-perl \
-  bsdmainutils \
-  curl \
   automake \
-  libtool \
-  make \
+  bsdmainutils \
+  clamav-daemon \
+  curl \
+  exiftool \
+  gcc \
+  git \
+  libclamunrar9 \
+  libdpkg-perl \
+  libffi-dev \
+  libfuzzy-dev \
   libjansson-dev \
   libmagic-dev \
-  libusb-1.0-0-dev && \
+  libssl-dev \
+  libtool \
+  libusb-1.0-0-dev \
+  make \
+  p7zip-full \
+  python3-dev \
+  python3-pip \
+  ssdeep \
+  swig \
+  tor \
+  unrar \
+  vim && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
